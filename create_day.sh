@@ -1,5 +1,4 @@
 #!/bin/bash
-# Usage: ./create_day.sh 02
 
 if [ -z "$1" ]; then
     echo "Usage: ./create_day.sh <day_number>"
@@ -15,10 +14,8 @@ if [ -d "$foldername" ]; then
     exit 1
 fi
 
-# Create the day folder
 mkdir -p "$foldername"
 
-# Create main.go in the folder
 cat > "$foldername/main.go" << 'EOF'
 package main
 
