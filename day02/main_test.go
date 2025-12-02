@@ -13,7 +13,7 @@ func TestPart1(t *testing.T) {
 	}
 
 	result := part1(input)
-	expected := 1227775554
+	var expected uint64 = 1227775554
 
 	if result != expected {
 		t.Errorf("part1() = %d, want %d", result, expected)
@@ -27,7 +27,7 @@ func TestPart2(t *testing.T) {
 	}
 
 	result := part2(input)
-	expected := 0
+	expected := uint64(4174379265)
 
 	if result != expected {
 		t.Errorf("part2() = %d, want %d", result, expected)
