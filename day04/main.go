@@ -12,52 +12,63 @@ const (
 	PAPER_ROLL  = '@'
 )
 
+func getNeighbors(lines []string, row, col int) []rune {
+	neighbors := []rune{}
+	atTop := row == 0
+	atBottom := row == len(lines)-1
+	atLeft := col == 0
+	atRight := col == len(lines[row])-1
+
+	if !atTop {
+		if !atLeft {
+			neighbors = append(neighbors, rune(lines[row-1][col-1])) // top left
+		}
+		neighbors = append(neighbors, rune(lines[row-1][col])) // top
+		if !atRight {
+			neighbors = append(neighbors, rune(lines[row-1][col+1])) // top right
+		}
+	}
+
+	if !atLeft {
+		neighbors = append(neighbors, rune(lines[row][col-1])) // left
+	}
+	if !atRight {
+		neighbors = append(neighbors, rune(lines[row][col+1])) // right
+	}
+
+	if !atBottom {
+		if !atLeft {
+			neighbors = append(neighbors, rune(lines[row+1][col-1])) // bottom left
+		}
+		neighbors = append(neighbors, rune(lines[row+1][col])) // bottom
+		if !atRight {
+			neighbors = append(neighbors, rune(lines[row+1][col+1])) // bottom right
+		}
+	}
+
+	return neighbors
+}
+
+func countPaperRolls(neighbors []rune) int {
+	count := 0
+	for _, neighbor := range neighbors {
+		if neighbor == PAPER_ROLL {
+			count++
+		}
+	}
+	return count
+}
+
 func part1(lines []string) int {
 	accessiblePaperRolls := 0
-	for verticalIndex, line := range lines {
-		atVertialEdgeTop, atVerticalEdgeBottom := findVerticalEdge(lines, verticalIndex)
-
-		for horizontalIndex, char := range line {
-			paperRollCount := 0
-			atHorizontalEdgeLeft, atHorizontalEdgeRight := findHorizontalEdge(line, horizontalIndex)
-			neighbors := []rune{}
-
-			if !atVertialEdgeTop {
-				if !atHorizontalEdgeLeft {
-					neighbors = append(neighbors, rune(lines[verticalIndex-1][horizontalIndex-1])) // top-left
+	for row, line := range lines {
+		for col, char := range line {
+			if char == PAPER_ROLL {
+				neighbors := getNeighbors(lines, row, col)
+				paperRollCount := countPaperRolls(neighbors)
+				if paperRollCount < 4 {
+					accessiblePaperRolls++
 				}
-				neighbors = append(neighbors, rune(lines[verticalIndex-1][horizontalIndex])) // top
-				if !atHorizontalEdgeRight {
-					neighbors = append(neighbors, rune(lines[verticalIndex-1][horizontalIndex+1])) // top-right
-				}
-			}
-
-			if !atHorizontalEdgeLeft {
-				neighbors = append(neighbors, rune(lines[verticalIndex][horizontalIndex-1])) // left
-			}
-
-			if !atHorizontalEdgeRight {
-				neighbors = append(neighbors, rune(lines[verticalIndex][horizontalIndex+1])) // right
-			}
-
-			if !atVerticalEdgeBottom {
-				if !atHorizontalEdgeLeft {
-					neighbors = append(neighbors, rune(lines[verticalIndex+1][horizontalIndex-1])) // bottom-left
-				}
-				neighbors = append(neighbors, rune(lines[verticalIndex+1][horizontalIndex])) // bottom
-				if !atHorizontalEdgeRight {
-					neighbors = append(neighbors, rune(lines[verticalIndex+1][horizontalIndex+1])) // bottom-right
-				}
-			}
-
-			for _, neighbor := range neighbors {
-				if neighbor == PAPER_ROLL {
-					paperRollCount++
-				}
-			}
-
-			if char == PAPER_ROLL && paperRollCount < 4 {
-				accessiblePaperRolls++
 			}
 		}
 	}
@@ -72,55 +83,15 @@ func part2(lines []string) int {
 		newLines := make([]string, len(lines))
 		copy(newLines, lines)
 
-		for verticalIndex, line := range lines {
-			atVertialEdgeTop, atVerticalEdgeBottom := findVerticalEdge(lines, verticalIndex)
-
-			for horizontalIndex, char := range line {
-				if char != PAPER_ROLL {
-					continue
-				}
-
-				paperRollCount := 0
-				atHorizontalEdgeLeft, atHorizontalEdgeRight := findHorizontalEdge(line, horizontalIndex)
-				neighbors := []rune{}
-
-				if !atVertialEdgeTop {
-					if !atHorizontalEdgeLeft {
-						neighbors = append(neighbors, rune(lines[verticalIndex-1][horizontalIndex-1])) // top-left
+		for row, line := range lines {
+			for col, char := range line {
+				if char == PAPER_ROLL {
+					neighbors := getNeighbors(lines, row, col)
+					paperRollCount := countPaperRolls(neighbors)
+					if paperRollCount < 4 {
+						removed++
+						newLines[row] = newLines[row][:col] + string(EMPTY_FLOOR) + newLines[row][col+1:]
 					}
-					neighbors = append(neighbors, rune(lines[verticalIndex-1][horizontalIndex])) // top
-					if !atHorizontalEdgeRight {
-						neighbors = append(neighbors, rune(lines[verticalIndex-1][horizontalIndex+1])) // top-right
-					}
-				}
-
-				if !atHorizontalEdgeLeft {
-					neighbors = append(neighbors, rune(lines[verticalIndex][horizontalIndex-1])) // left
-				}
-
-				if !atHorizontalEdgeRight {
-					neighbors = append(neighbors, rune(lines[verticalIndex][horizontalIndex+1])) // right
-				}
-
-				if !atVerticalEdgeBottom {
-					if !atHorizontalEdgeLeft {
-						neighbors = append(neighbors, rune(lines[verticalIndex+1][horizontalIndex-1])) // bottom-left
-					}
-					neighbors = append(neighbors, rune(lines[verticalIndex+1][horizontalIndex])) // bottom
-					if !atHorizontalEdgeRight {
-						neighbors = append(neighbors, rune(lines[verticalIndex+1][horizontalIndex+1])) // bottom-right
-					}
-				}
-
-				for _, neighbor := range neighbors {
-					if neighbor == PAPER_ROLL {
-						paperRollCount++
-					}
-				}
-
-				if paperRollCount < 4 {
-					removed++
-					newLines[verticalIndex] = newLines[verticalIndex][:horizontalIndex] + string(EMPTY_FLOOR) + newLines[verticalIndex][horizontalIndex+1:]
 				}
 			}
 		}
@@ -144,17 +115,4 @@ func main() {
 
 	fmt.Println("Part 1:", part1(lines))
 	fmt.Println("Part 2:", part2(lines))
-}
-
-func findHorizontalEdge(line string, i int) (bool, bool) {
-	atHorizontalEdgeLeft := i == 0
-	atHorizontalEdgeRight := i == len(line)-1
-	return atHorizontalEdgeLeft, atHorizontalEdgeRight
-}
-
-func findVerticalEdge(lines []string, i int) (bool, bool) {
-	atVerticalEdgeTop := i == 0
-	atVerticalEdgeBottom := i == len(lines)-1
-
-	return atVerticalEdgeTop, atVerticalEdgeBottom
 }
