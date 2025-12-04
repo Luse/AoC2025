@@ -64,7 +64,7 @@ func TestPart1(t *testing.T) {
 	}
 
 	result := part1(input)
-	expected := 0 // TODO: Add expected result
+	expected := 0
 
 	if result != expected {
 		t.Errorf("part1() = %d, want %d", result, expected)
@@ -78,7 +78,7 @@ func TestPart2(t *testing.T) {
 	}
 
 	result := part2(input)
-	expected := 0 // TODO: Add expected result
+	expected := 0
 
 	if result != expected {
 		t.Errorf("part2() = %d, want %d", result, expected)
